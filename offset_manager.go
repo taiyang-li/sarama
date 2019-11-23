@@ -235,18 +235,22 @@ func (om *offsetManager) mainLoop() {
 
 // flushToBroker is ignored if auto-commit offsets is disabled
 func (om *offsetManager) flushToBroker() {
+    Logger.Println("flush to broker start")
 	if !om.conf.Consumer.Offsets.AutoCommit.Enable {
+        Logger.Println("flush to broker failed1")
 		return
 	}
 
 	req := om.constructRequest()
 	if req == nil {
+        Logger.Println("flush to broker failed2")
 		return
 	}
 
 	broker, err := om.coordinator()
 	if err != nil {
 		om.handleError(err)
+        Logger.Println("flush to broker failed3", err)
 		return
 	}
 
@@ -255,10 +259,12 @@ func (om *offsetManager) flushToBroker() {
 		om.handleError(err)
 		om.releaseCoordinator(broker)
 		_ = broker.Close()
+        Logger.Println("flush to broker failed4", err)
 		return
 	}
 
 	om.handleResponse(broker, req, resp)
+    Logger.Println("flush to broker finish")
 }
 
 func (om *offsetManager) constructRequest() *OffsetCommitRequest {
